@@ -66,9 +66,10 @@ end
 
 # Receiving end of new user form
 post "/users/create" do
+    puts params.inspect
     users_table.insert(:name => params["name"],
                        :email => params["email"],
-                       :password => params["password"])
+                       :password => BCrypt::Password.create(params["password"]))
     view "create_user"
 end
 
@@ -87,7 +88,7 @@ post "/logins/create" do
     if user
         puts user.inspect
         # test the password against the one in the users table
-        if user[:password] == password_entered
+        if BCrypt::Password.new(user[:password]) == password_entered
             session[:user_id] = user[:id]
             view "create_login"
         else
